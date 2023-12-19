@@ -8,11 +8,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.book.service.entity.Book;
 
 // Spring Data JPA creates CRUD implementation at runtime automatically.
 @Repository
+@Transactional
 public interface BookRepository extends JpaRepository<Book, Long> {
 
   // it works if it matches the book field name

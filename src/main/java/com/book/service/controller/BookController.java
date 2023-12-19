@@ -3,10 +3,14 @@ package com.book.service.controller;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.book.service.entity.Book;
 import com.book.service.repository.BookRepository;
 
+@CrossOrigin("*")
 @RestController
 public class BookController {
 
@@ -23,22 +28,36 @@ public class BookController {
 	@Autowired
 	private BookRepository bookRepository;
 	
-	@RequestMapping(value="/createBooks", method = RequestMethod.GET, produces = { "application/json" })
-	public void createBooks() {
+	@RequestMapping(value="/createBooks", method = RequestMethod.POST, produces = { "application/json" })
+	public void createBooks(@RequestBody Book book) {
 		
-		Book b1 = new Book("Book A", BigDecimal.valueOf(9.99), LocalDate.of(2023, 8, 31));
-        Book b2 = new Book("Book B", BigDecimal.valueOf(19.99), LocalDate.of(2023, 7, 31));
-        Book b3 = new Book("Book C", BigDecimal.valueOf(29.99), LocalDate.of(2023, 6, 10));
-        Book b4 = new Book("Book D", BigDecimal.valueOf(39.99), LocalDate.of(2023, 5, 5));
-        
-        bookRepository.save(b1);
-        bookRepository.save(b2);
-        bookRepository.save(b3);
-        bookRepository.save(b4);
+        bookRepository.save(book);
 	}
 	
 	@RequestMapping(value="/getBooks", method = RequestMethod.GET, produces = { "application/json" })
 	public List<Book> getBooks() {
         return bookRepository.findAll();
 	}
+	
+	@RequestMapping(value="/getBook/{id}", method = RequestMethod.GET, produces = { "application/json" })
+	public Book getBook(@PathVariable long id) {
+        return bookRepository.findById(id).get();
+	}
+	
+	@RequestMapping(value="/updateBook/{id}", method = RequestMethod.PUT)
+	public void updateBook(@PathVariable long id, @RequestBody Book book) {
+		Optional<Book> optionalBook = bookRepository.findById(id);
+		if(optionalBook.isPresent()) {
+	        Book  bookEntity = optionalBook.get();
+	        bookEntity.setPrice(book.getPrice());
+	        bookEntity.setTitle(book.getTitle());
+	        bookRepository.save(bookEntity);
+		}
+	}
+
+	@RequestMapping(value="/deleteBook/{id}", method = RequestMethod.DELETE)
+	public void deleteBook(@PathVariable long id) {
+        bookRepository.deleteById(id);
+	}
 }
+
